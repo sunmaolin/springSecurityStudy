@@ -35,6 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // 退出配置
+        http.logout().logoutUrl("/logout").logoutSuccessUrl("/index").permitAll();
         // 配置没有访问权限跳转的页面 403
         http.exceptionHandling().accessDeniedPage("/unAuth.html");
         // 自定义自己编写的登录页面
