@@ -33,7 +33,7 @@ public class MyUserDetailsService implements UserDetailsService {
         }
 
         // 设置用户权限
-        List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList("admins,ROLE_sale");
+        List<GrantedAuthority> auths = AuthorityUtils.commaSeparatedStringToAuthorityList("admins,ROLE_boss");
         return new User(users.getUserName(),
                 new BCryptPasswordEncoder().encode(users.getPassWord()), auths);
     }

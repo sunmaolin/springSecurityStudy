@@ -35,6 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // 配置没有访问权限跳转的页面 403
+        http.exceptionHandling().accessDeniedPage("/unAuth.html");
         // 自定义自己编写的登录页面
         http.formLogin()
                 // 登录页面
@@ -52,9 +54,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 当前登录用户，只要具有其中的一个权限就可以访问
                 //.antMatchers("/admin").hasAnyAuthority("admins","manager")
                 // 当前登录用户，角色为sale才可访问  源码后拼接了 ROLE_sale
-                //.antMatchers("/admin").hasRole("sale")
+                .antMatchers("/admin").hasRole("sale")
                 // 同上，多个角色之一即可
-                .antMatchers("/admin").hasAnyRole("sale", "boss")
+//                .antMatchers("/admin").hasAnyRole("sale", "boss")
                 .anyRequest().authenticated()
                 // 关闭csrf防护
                 .and().csrf().disable();
