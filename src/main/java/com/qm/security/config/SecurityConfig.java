@@ -9,12 +9,28 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserDetailsService userDetailsService;
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository() {
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        // 创建数据库表，用于存储用户token
+        jdbcTokenRepository.setCreateTableOnStartup(true);
+        return jdbcTokenRepository;
+    }
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
@@ -58,8 +74,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 当前登录用户，角色为sale才可访问  源码后拼接了 ROLE_sale
                 .antMatchers("/admin").hasRole("sale")
                 // 同上，多个角色之一即可
-//                .antMatchers("/admin").hasAnyRole("sale", "boss")
+                //.antMatchers("/admin").hasAnyRole("sale", "boss")
                 .anyRequest().authenticated()
+                .and().rememberMe()
+                // 设置token存储仓库，就是数据源和表的一些配置
+                .tokenRepository(persistentTokenRepository())
+                // 令牌有效时间，单位秒s
+                .tokenValiditySeconds(60)
+                // 查询数据库的userDatailsService
+                .userDetailsService(userDetailsService)
                 // 关闭csrf防护
                 .and().csrf().disable();
     }
